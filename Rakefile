@@ -1,8 +1,8 @@
 require 'bundler/gem_tasks'
 
 desc "Run unit tests"
-task :default => 'test:unit'
-task :test    => 'test:unit'
+task :default => 'test:all'
+task :test    => 'test:all'
 
 # ----- Test tasks ------------------------------------------------------------
 
@@ -17,7 +17,7 @@ namespace :test do
   Rake::TestTask.new(:unit) do |test|
     Rake::Task['test:ci_reporter'].invoke if ENV['CI']
     test.libs << 'lib' << 'test'
-    test.test_files = FileList["test/unit/**/*_test.rb"]
+    test.test_files = FileList["test/unit/*_test.rb"]
     # test.verbose = true
     # test.warning = true
   end
@@ -25,12 +25,12 @@ namespace :test do
   Rake::TestTask.new(:integration) do |test|
     Rake::Task['test:ci_reporter'].invoke if ENV['CI']
     test.libs << 'lib' << 'test'
-    test.test_files = FileList["test/integration/**/*_test.rb"]
+    test.test_files = FileList["test/integration/*_test.rb"]
   end
 
   Rake::TestTask.new(:all) do |test|
     Rake::Task['test:ci_reporter'].invoke if ENV['CI']
     test.libs << 'lib' << 'test'
-    test.test_files = FileList["test/unit/**/*_test.rb", "test/integration/**/*_test.rb"]
+    test.test_files = FileList["test/unit/*_test.rb", "test/integration/*_test.rb"]
   end
 end
