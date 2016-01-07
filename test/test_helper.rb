@@ -52,6 +52,7 @@ module Elasticsearch
       shutdown do
         unless ENV["I_AM_HA_CHILD"]
           Elasticsearch::Extensions::Test::Cluster.stop if started?
+          TEST_DB_FILE.close!
           TEST_DB_FILE.unlink
         end
       end   
@@ -59,7 +60,7 @@ module Elasticsearch
       context "IntegrationTest" do; should "noop on Ruby 1.8" do; end; end if RUBY_1_8
     
       def setup
-        ActiveRecord::Base.establish_connection( :adapter => 'sqlite3', :database => TEST_DB_FILE )
+        ActiveRecord::Base.establish_connection( :adapter => 'sqlite3', :database => TEST_DB_FILE.path )
         logger = ::Logger.new(STDERR)
         logger.formatter = lambda { |s, d, p, m| "#{m.ansi(:faint, :cyan)}\n" }
         ActiveRecord::Base.logger = logger unless ENV['QUIET']
