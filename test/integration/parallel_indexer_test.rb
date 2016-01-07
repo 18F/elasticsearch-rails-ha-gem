@@ -43,7 +43,7 @@ class Elasticsearch::Test::ParallelIndexerIntegration < Elasticsearch::Test::HA
         idx_name: Article.index_name, 
         nprocs: 2, 
         batch_size: 2,
-        verbose: true,
+        verbose: !ENV["QUIET"]
       )
       indexer.run
       Article.__elasticsearch__.refresh_index!
