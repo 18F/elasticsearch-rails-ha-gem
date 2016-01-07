@@ -27,12 +27,11 @@ module Elasticsearch
             actions: [
               { add: { index: tmp_index_name, alias: stage_index_name } }
             ]
-          } 
+          }
         end
 
         def clean_up_old_indices(age_window)
           old_aliases = es_client.indices.get_aliases(index: stage_idx_name).keys
-          tmp_index_pattern = /#{klass.index_name}_(\d{8})\w{8}$/
           old_aliases.each do |alias_name|
             next unless alias_name.match(tmp_index_pattern)
             begin
@@ -47,13 +46,69 @@ module Elasticsearch
         end
 
         def promote
+          # the renaming actions (performed atomically by ES)
+          rename_actions = [
+            { remove: { index: stage_aliased_to, alias: stage_index_name } },
+            {    add: { index: stage_index_name, alias: klass.index_name } }
+          ]
 
+          # zap any existing index known as index_name,
+          # but do it conditionally since it is reasonable that it does not exist.
+          to_delete = []
+          existing_live_index = es_client.indices.get_aliases(index: klass.index_name)
+          existing_live_index.each do |k,v|
+
+            # if the index is merely aliased, remove its alias as part of the aliasing transaction.
+            if k != klass.index_name
+              rename_actions.unshift({ remove: { index: k, alias: klass.index_name } })
+
+              # mark it for deletion when we've successfully updated aliases
+              to_delete.push k
+
+            else
+              # this is a real, unaliased index with this name, so it must be deleted.
+              # (This usually happens the first time we implement the aliasing scheme against
+              # an existing installation.)
+              es_client.indices.delete index: klass.index_name rescue false
+            end
+          end
+
+          # re-alias
+          es_client.indices.update_aliases body: { actions: rename_actions }
+
+          # clean up
+          to_delete.each do |idxname|
+            es_client.indices.delete index: idxname rescue false
+          end
         end
 
         private
 
+        def tmp_index_pattern
+          /#{klass.index_name}_(\d{8})\w{8}$/
+        end
+
         def es_client
           klass.__elasticsearch__.client
+        end
+
+        def stage_aliased_to
+          # find the newest tmp index to which staged is aliased.
+          # we need this because we want to re-alias it.
+          aliased_to = nil
+          stage_aliases = es_client.indices.get_aliases(index: stage_index_name)
+          stage_aliases.each do |k,v|
+            aliased_to ||= k
+            stage_tstamp = aliased_to.match(tmp_index_pattern)[1]
+            k_tstamp = k.match(tmp_index_pattern)[1]
+            if Time.parse(stage_tstamp) < Time.parse(k_tstamp)
+              aliased_to = k
+            end
+          end
+          if !aliased_to
+            raise "Cannot identify index aliased to by '#{stage_index_name}'"
+          end
+          aliased_to
         end
       end
     end
