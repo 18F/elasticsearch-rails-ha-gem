@@ -46,12 +46,14 @@ module Elasticsearch
       TEST_DB_FILE = Tempfile.new('elasticsearch-rails-ha-test.db')
 
       startup do
-        Elasticsearch::Extensions::Test::Cluster.start(nodes: 1) unless Elasticsearch::Extensions::Test::Cluster.running? 
+        unless ENV["ES_SKIP"] || Elasticsearch::Extensions::Test::Cluster.running?
+          Elasticsearch::Extensions::Test::Cluster.start(nodes: 1)
+        end
       end 
     
       shutdown do
         unless ENV["I_AM_HA_CHILD"]
-          Elasticsearch::Extensions::Test::Cluster.stop if started?
+          Elasticsearch::Extensions::Test::Cluster.stop if Elasticsearch::Extensions::Test::Cluster.running?
           TEST_DB_FILE.close!
           TEST_DB_FILE.unlink
         end

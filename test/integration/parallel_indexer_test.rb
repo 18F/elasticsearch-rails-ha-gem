@@ -45,6 +45,7 @@ class Elasticsearch::Test::ParallelIndexerIntegration < Elasticsearch::Test::HA
         batch_size: 2,
         verbose: !ENV["QUIET"]
       )
+      Article.__elasticsearch__.create_index! force: true
       indexer.run
       Article.__elasticsearch__.refresh_index!
       response = Article.search('title:test')
