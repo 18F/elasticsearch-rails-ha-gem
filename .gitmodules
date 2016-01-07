@@ -1,3 +1,0 @@
-[submodule "vendor/elasticsearch-rails"]
-	path = vendor/elasticsearch-rails
-	url = https://github.com/elastic/elasticsearch-rails.git
