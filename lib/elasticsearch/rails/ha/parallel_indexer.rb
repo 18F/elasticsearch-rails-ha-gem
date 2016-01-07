@@ -19,8 +19,8 @@ module Elasticsearch
           @total_expected = klass.count
           @pool_size = (@total_expected / @nprocs.to_f).ceil
         end
-     
-        def run 
+
+        def run
           # get all ids since we can't assume there are no holes in the PK sequencing
           ids = klass.order('id ASC').pluck(:id)
           offsets = []
@@ -31,16 +31,16 @@ module Elasticsearch
           if @verbose
             puts ANSI.blue{ "Parallel Indexer: index=#{@idx_name} total=#{@total_expected} nprocs=#{@nprocs} pool_size=#{@pool_size} offsets=#{offsets} " }
           end
-      
+
           if @force
             @verbose and puts "Force creating new index"
             klass.__elasticsearch__.create_index! force: true, index: idx_name
             klass.__elasticsearch__.refresh_index!
           end
-      
+
           @current_db_config = ActiveRecord::Base.connection_config
-     
-          child_pids = [] 
+
+          child_pids = []
           offsets.each do |start_at|
             ActiveRecord::Base.connection.disconnect! # IMPORTANT before fork
             child_pid = fork do
@@ -70,34 +70,35 @@ module Elasticsearch
             exit_ok = true
             if pstat.exited?
               @verbose and puts ANSI.blue{ "PID #{pid} exited with #{pstat.exitstatus}" }
-            end 
+            end
             if pstat.signaled?
               puts ANSI.red{ " >> #{pid} exited with uncaught signal #{pstat.termsig}" }
               exit_ok = false
-            end 
-         
+            end
+
             if !pstat.success?
               puts ANSI.red{ " >> #{pid} was not successful" }
               exit_ok = false
-            end 
-         
+            end
+
             if pair[1].exitstatus != 0
               puts ANSI.red{ " >> #{pid} exited with non-zero status" }
               exit_ok = false
-            end 
-         
+            end
+
             if !exit_ok
               raise ANSI.red{ "PID #{pair[0]} exited abnormally, so the whole reindex fails" }
-            end 
-          end 
+            end
+          end
         end
-        
+
         def run_child(start_at)
           # IMPORTANT after fork
           ActiveRecord::Base.establish_connection(@current_db_config)
 
+          # IMPORTANT for tests to determine whether at_end should run
           ENV["I_AM_HA_CHILD"] = "true"
-      
+
           completed = 0
           errors    = []
           @verbose and puts ANSI.blue{ "Start worker #{$$} at offset #{start_at}" }
@@ -109,7 +110,7 @@ module Elasticsearch
           else
             checkpoint = true
           end
-      
+
           @klass.__elasticsearch__.import :return => 'errors',
             :index => @idx_name,
             :start => start_at,
