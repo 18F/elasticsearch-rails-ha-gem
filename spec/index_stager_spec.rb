@@ -20,6 +20,18 @@ describe Elasticsearch::Rails::HA::IndexStager do
     expect(aliases.keys[0]).to eq stager.tmp_index_name
   end
 
+  it "promotes a staged index to live" do
+    stager = stage_index
+    stager.promote
+    Article.__elasticsearch__.refresh_index!
+
+    response = Article.search('title:test')
+    expect(response.results.size).to eq 2
+
+    aliases = ESHelper.client.indices.get_aliases(index: Article.index_name)
+    expect(aliases.keys[0]).to eq stager.tmp_index_name
+  end
+
   def stage_index
     stager = Elasticsearch::Rails::HA::IndexStager.new('Article')
     indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
