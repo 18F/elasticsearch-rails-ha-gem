@@ -35,7 +35,7 @@ Promote your staged index:
 ## Acknowledgements
 
 Thanks to [Pop Up Archive](http://popuparchive.com/) for
-contributing the original version of this code to the public domain.
+contributing the [original version of this code](https://github.com/popuparchive/pop-up-archive/blob/master/lib/tasks/search.rake) to the public domain.
 
 ## Public domain
 
