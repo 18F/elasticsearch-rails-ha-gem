@@ -107,7 +107,7 @@ module Elasticsearch
           completed = 0
           errors    = []
           @verbose and puts ANSI.blue{ "Start worker #{$$} at offset #{start_at}" }
-          pbar = ANSI::Progressbar.new("#{klass} [#{$$}]", pool_size, STDOUT) rescue nil
+          pbar = ANSI::Progressbar.new("#{klass} [#{$$}]", @pool_size, STDOUT) rescue nil
           checkpoint = false
           if pbar
             pbar.__send__ :show
