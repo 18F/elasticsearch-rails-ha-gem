@@ -38,12 +38,33 @@ require 'elasticsearch/extensions/test/startup_shutdown'
 require 'tempfile'
 require 'elasticsearch/rails/ha'
 
+class TempSqlite
+  def self.quiet
+    ENV['QUIET']
+  end
+
+  def self.db_file
+    @@_db_file ||= Tempfile.new('elasticsearch-rails-ha-test.db')
+  end
+
+  def self.refresh_db
+    quiet or puts "Removing temp db file at #{db_file.path}"
+    @@_db_file.close!
+    @@_db_file.unlink
+    @@_db_file = nil
+    open_connection
+  end
+
+  def self.open_connection
+    quiet or puts "Opening db connection to #{db_file.path}"
+    ActiveRecord::Base.establish_connection( :adapter => 'sqlite3', :database => db_file.path )
+  end
+end
+
 module Elasticsearch
   module Test
     class HA < ::Test::Unit::TestCase
       extend Elasticsearch::Extensions::Test::StartupShutdown
-
-      TEST_DB_FILE = Tempfile.new('elasticsearch-rails-ha-test.db')
 
       startup do
         unless ENV["ES_SKIP"] || Elasticsearch::Extensions::Test::Cluster.running?
@@ -54,15 +75,13 @@ module Elasticsearch
       shutdown do
         unless ENV["I_AM_HA_CHILD"]
           Elasticsearch::Extensions::Test::Cluster.stop if Elasticsearch::Extensions::Test::Cluster.running?
-          TEST_DB_FILE.close!
-          TEST_DB_FILE.unlink
         end
-      end   
-    
+      end
+
       context "IntegrationTest" do; should "noop on Ruby 1.8" do; end; end if RUBY_1_8
     
       def setup
-        ActiveRecord::Base.establish_connection( :adapter => 'sqlite3', :database => TEST_DB_FILE.path )
+        TempSqlite.open_connection
         logger = ::Logger.new(STDERR)
         logger.formatter = lambda { |s, d, p, m| "#{m.ansi(:faint, :cyan)}\n" }
         ActiveRecord::Base.logger = logger unless ENV['QUIET']

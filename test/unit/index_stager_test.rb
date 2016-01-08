@@ -23,7 +23,7 @@ module Elasticsearch
         should "generate index names" do
           stager = Elasticsearch::Rails::HA::IndexStager.new('Article')
           assert_equal stager.stage_index_name, "articles_stage", "stage_index_name"
-          assert_match /articles_\d{8}\w{8}/, stager.tmp_index_name, "tmp_index_name"
+          assert_match /articles_\d{14}-\w{8}/, stager.tmp_index_name, "tmp_index_name"
         end
 
       end

@@ -2,7 +2,7 @@ module Elasticsearch
   module Rails
     module HA
       class IndexStager
-        attr_reader :klass
+        attr_reader :klass, :live_index_name
 
         def initialize(klass)
           @klass = klass.constantize
@@ -17,11 +17,11 @@ module Elasticsearch
         end
 
         def tmp_index_name
-          @_suffix ||= Time.now.strftime('%Y%m%d%H%M%S') + SecureRandom.hex[0..8]
+          @_suffix ||= Time.now.strftime('%Y%m%d%H%M%S') + '-' + SecureRandom.hex[0..8]
           "#{klass.index_name}_#{@_suffix}"
         end
 
-        def alias_index
+        def alias_stage_to_tmp_index
           es_client.indices.delete index: stage_index_name rescue false
           es_client.indices.update_aliases body: {
             actions: [
@@ -30,8 +30,8 @@ module Elasticsearch
           }
         end
 
-        def clean_up_old_indices(age_window)
-          old_aliases = es_client.indices.get_aliases(index: stage_idx_name).keys
+        def clean_up_old_indices(age_window=1.weeks.ago)
+          old_aliases = es_client.indices.get_aliases(index: stage_index_name).keys
           old_aliases.each do |alias_name|
             next unless alias_name.match(tmp_index_pattern)
             begin
@@ -45,22 +45,24 @@ module Elasticsearch
           end
         end
 
-        def promote
+        def promote(live_index_name=klass.index_name)
+          @live_index_name = live_index_name
+
           # the renaming actions (performed atomically by ES)
           rename_actions = [
             { remove: { index: stage_aliased_to, alias: stage_index_name } },
-            {    add: { index: stage_index_name, alias: klass.index_name } }
+            {    add: { index: stage_index_name, alias: live_index_name } }
           ]
 
           # zap any existing index known as index_name,
           # but do it conditionally since it is reasonable that it does not exist.
           to_delete = []
-          existing_live_index = es_client.indices.get_aliases(index: klass.index_name)
+          existing_live_index = es_client.indices.get_aliases(index: live_index_name)
           existing_live_index.each do |k,v|
 
             # if the index is merely aliased, remove its alias as part of the aliasing transaction.
             if k != klass.index_name
-              rename_actions.unshift({ remove: { index: k, alias: klass.index_name } })
+              rename_actions.unshift({ remove: { index: k, alias: live_index_name } })
 
               # mark it for deletion when we've successfully updated aliases
               to_delete.push k
@@ -69,7 +71,7 @@ module Elasticsearch
               # this is a real, unaliased index with this name, so it must be deleted.
               # (This usually happens the first time we implement the aliasing scheme against
               # an existing installation.)
-              es_client.indices.delete index: klass.index_name rescue false
+              es_client.indices.delete index: live_index_name rescue false
             end
           end
 
@@ -85,7 +87,7 @@ module Elasticsearch
         private
 
         def tmp_index_pattern
-          /#{klass.index_name}_(\d{8})\w{8}$/
+          /#{klass.index_name}_(\d{14})-\w{8}$/
         end
 
         def es_client

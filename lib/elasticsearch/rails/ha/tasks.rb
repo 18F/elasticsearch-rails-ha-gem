@@ -14,7 +14,7 @@ namespace :elasticsearch
 
       indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
         klass: klass, 
-        idx_name: klass.index_name,
+        idx_name: (ENV['INDEX'] || klass.index_name),
         nprocs: nprocs.to_i, 
         batch_size: batch_size.to_i, 
         max: max, 
@@ -34,16 +34,16 @@ namespace :elasticsearch
 
       stager = Elasticsearch::Rails::HA::IndexStager.new(klass)
       indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
-        klass: klass,    
-        idx_name: stager.tmp_index_name,
+        klass: stager.klass,
+        idx_name: (ENV['INDEX'] || stager.tmp_index_name),
         nprocs: nprocs.to_i,    
         batch_size: batch_size.to_i,    
         max: max,    
-        force: ENV['FORCE'],
+        force: true,
         verbose: !ENV['QUIET']
       )   
       indexer.run
-      stager.alias_index
+      stager.alias_stage_to_tmp_index
       stager.clean_up_old_indices
       puts "[#{Time.now.utc.iso8601}] #{klass} index staged as #{stager.stage_index_name}"
     end
@@ -52,8 +52,8 @@ namespace :elasticsearch
     task :promote do
       klass = ENV['CLASS'] or fail "CLASS required"
       stager = Elasticsearch::Rails::HA::IndexStager.new(klass)
-      stager.promote
-      puts "[#{Time.now.utc.iso8601}] #{klass} promoted #{stage_index_name} to #{klass.index_name}"
+      stager.promote(ENV['INDEX'])
+      puts "[#{Time.now.utc.iso8601}] #{klass} promoted #{stage_index_name} to #{stager.live_index_name}"
     end
 
   end

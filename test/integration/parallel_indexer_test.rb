@@ -5,6 +5,7 @@ class Elasticsearch::Test::ParallelIndexerIntegration < Elasticsearch::Test::HA
   context "ActiveRecord integration" do
 
     setup do
+      TempSqlite.refresh_db
       ActiveRecord::Base.raise_in_transactional_callbacks = true
       ActiveRecord::Schema.define(:version => 1) do
         create_table :articles do |t|
