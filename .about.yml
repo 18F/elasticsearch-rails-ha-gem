@@ -1,0 +1,96 @@
+---
+# .about.yml project metadata
+#
+# Short name that acts as the project identifier (required)
+name: elasticsearch-rails-ha-gem
+
+# Full proper name of the project (required)
+full_name: Elasticsearch Rails high availability extensions RubyGem
+
+# The type of content in the repo
+# values: app, docs, policy
+type: app
+
+# Describes whether a project team, working group/guild, etc. owns the repo (required)
+# values: guild, working-group, project
+owner_type: project
+
+# Name of the main project repo if this is a sub-repo; name of the working group/guild repo if this is a working group/guild subproject
+#parent:
+
+# Maturity stage of the project (required)
+# values: discovery, alpha, beta, live
+stage: beta
+
+# Whether or not the project is actively maintained (required)
+# values: active, deprecated
+status: active
+
+# Description of the project
+description: >
+  extensions to the standard Elasticsearch::Rails Rake tasks
+# Should be 'true' if the project has a continuous build (required)
+# values: true, false
+testable: true
+
+# Team members contributing to the project (required)
+# Items:
+# - github: GitHub user name
+#   id: Internal team identifier/user name
+#   role: Team member's role; leads should be designated as 'lead'
+team:
+- github: pkarman
+  role: lead
+
+# Partners for whom the project is developed
+#partners:
+#- 
+
+# Brief descriptions of significant project developments
+#milestones:
+#- 
+
+# Technologies used to build the project
+stack:
+- Ruby
+
+# Brief description of the project's outcomes
+#impact:
+
+# Services used to supply project status information
+# Items:
+# - name: Name of the service
+#   category: Type of the service
+#   url: URL for detailed information
+#   badge: URL for the status badge
+#services:
+#- 
+
+# Licenses that apply to the project and/or its components (required)
+# Items by property name pattern:
+#   .*:
+#     name: Name of the license from the Software Package Data Exchange (SPDX): https://spdx.org/licenses/
+#     url: URL for the text of the license
+licenses:
+  'elasticsearch-rails-ha-gem':
+    name: CC0
+    url: https://github.com/18F/elasticsearch-rails-ha-gem/blob/master/LICENSE.md
+
+# Blogs or websites associated with project development
+#blog:
+#- 
+
+# Links to project artifacts
+# Items:
+# - url: URL for the link
+#   text: Anchor text for the link
+links:
+- url: https://rubygems.org/gems/elasticsearch-rails-ha
+  text: elasticsearch-rails-ha RubyGem
+
+# Email addresses of points-of-contact
+contact:
+- url: mailto:peter.karman@gsa.gov
+  text: Peter Karman
+- url: https://github.com/18F/elasticsearch-rails-ha-gem/issues
+  text: 18F/elasticsearch-rails-ha-gem issues
