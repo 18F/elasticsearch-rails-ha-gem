@@ -6,6 +6,32 @@ See also:
 
 * [elasticsearch-rails](https://github.com/elastic/elasticsearch-rails)
 
+## Examples
+
+Add the high availability tasks to your Rake task file `lib/tasks/elasticsearch.rake`:
+
+```
+require 'elasticsearch/rails/ha/tasks'
+```
+
+Import all the Articles on a machine with 4 cores available:
+
+```
+% bundle exec rake environment elasticsearch:ha:import NPROCS=4 CLASS='Article'
+```
+
+Stage an index alongside your live index, but do not make it live yet:
+
+```
+% bundle exec rake environment elasticsearch:ha:stage NPROCS=4 CLASS='Article'
+```
+
+Promote your staged index:
+
+```
+% bundle exec rake environment elasticsearch:ha:promote
+```
+
 ## Acknowledgements
 
 Thanks to the folks from [Pop Up Archive](http://popuparchive.com/) for 
