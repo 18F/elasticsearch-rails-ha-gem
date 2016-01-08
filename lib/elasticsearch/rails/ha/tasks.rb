@@ -14,7 +14,7 @@ namespace :elasticsearch do
 
       indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
         klass: klass,
-        idx_name: (ENV['INDEX'] || klass.index_name),
+        idx_name: (ENV['INDEX'] || klass.constantize.index_name),
         nprocs: nprocs.to_i,
         batch_size: batch_size.to_i,
         max: max,
