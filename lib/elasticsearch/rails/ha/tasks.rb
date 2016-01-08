@@ -13,7 +13,7 @@ namespace :elasticsearch do
       klass      = ENV['CLASS'] or fail "CLASS required"
 
       indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
-        klass: klass,
+        klass: klass.constantize,
         idx_name: (ENV['INDEX'] || klass.constantize.index_name),
         nprocs: nprocs.to_i,
         batch_size: batch_size.to_i,
