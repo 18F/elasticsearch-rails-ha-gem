@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   ]
   s.executables   = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
 
+  s.add_runtime_dependency 'elasticsearch-model'
   s.add_runtime_dependency 'elasticsearch-rails'
   s.add_runtime_dependency 'ansi'
 
@@ -31,14 +32,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "elasticsearch-extensions"
   s.add_development_dependency "elasticsearch-model"
   s.add_development_dependency "sqlite3"
-  #s.add_development_dependency "oj"
   s.add_development_dependency "rails",  ">= 3.1"
-  s.add_development_dependency "lograge"
-
-
-  if defined?(RUBY_VERSION) && RUBY_VERSION > '1.9'
-    s.add_development_dependency "simplecov"
-    s.add_development_dependency "cane"
-    s.add_development_dependency "require-prof"
-  end
 end
