@@ -13,11 +13,12 @@ namespace :elasticsearch
       klass      = ENV['CLASS'] or fail "CLASS required"
 
       indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
-        klass: klass, 
+        klass: klass,
         idx_name: (ENV['INDEX'] || klass.index_name),
-        nprocs: nprocs.to_i, 
-        batch_size: batch_size.to_i, 
-        max: max, 
+        nprocs: nprocs.to_i,
+        batch_size: batch_size.to_i,
+        max: max,
+        scope: ENV.fetch('SCOPE', nil),
         force: ENV['FORCE'],
         verbose: !ENV['QUIET']
       )
@@ -28,20 +29,21 @@ namespace :elasticsearch
     desc "stage an index"
     task :stage do
       nprocs     = ENV['NPROCS'] || 1
-      batch_size = ENV['BATCH']  || 100 
-      max        = ENV['MAX']    || nil 
+      batch_size = ENV['BATCH']  || 100
+      max        = ENV['MAX']    || nil
       klass      = ENV['CLASS'] or fail "CLASS required"
 
       stager = Elasticsearch::Rails::HA::IndexStager.new(klass)
       indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
         klass: stager.klass,
         idx_name: (ENV['INDEX'] || stager.tmp_index_name),
-        nprocs: nprocs.to_i,    
-        batch_size: batch_size.to_i,    
-        max: max,    
+        nprocs: nprocs.to_i,
+        batch_size: batch_size.to_i,
+        max: max,
+        scope: ENV.fetch('SCOPE', nil),
         force: true,
         verbose: !ENV['QUIET']
-      )   
+      )
       indexer.run
       stager.alias_stage_to_tmp_index
       puts "[#{Time.now.utc.iso8601}] #{klass} index staged as #{stager.stage_index_name}"

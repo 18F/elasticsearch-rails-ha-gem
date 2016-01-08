@@ -3,7 +3,7 @@ module Elasticsearch
     module HA
       class ParallelIndexer
 
-        attr_reader :klass, :idx_name, :nprocs, :batch_size, :max, :force, :verbose
+        attr_reader :klass, :idx_name, :nprocs, :batch_size, :max, :force, :verbose, :scope
 
         # leverage multiple cores to run indexing in parallel
         def initialize(opts)
@@ -14,6 +14,7 @@ module Elasticsearch
           @max        = opts[:max]
           @force      = opts[:force]
           @verbose    = opts[:verbose]
+          @scope      = opts[:scope]
 
           # calculate array of offsets based on nprocs
           @total_expected = klass.count
@@ -115,10 +116,11 @@ module Elasticsearch
             checkpoint = true
           end
 
-          @klass.__elasticsearch__.import :return => 'errors',
-            :index => @idx_name,
-            :start => start_at,
-            :batch_size => @batch_size    do |resp|
+          @klass.__elasticsearch__.import return: 'errors',
+            index: @idx_name,
+            start: start_at,
+            scope: @scope,
+            batch_size: @batch_size    do |resp|
               # show errors immediately (rather than buffering them)
               errors += resp['items'].select { |k, v| k.values.first['error'] }
               completed += resp['items'].size
