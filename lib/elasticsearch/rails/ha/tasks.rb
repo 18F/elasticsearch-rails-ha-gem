@@ -2,8 +2,8 @@
 
 require 'elasticsearch/rails/ha'
 
-namespace :elasticsearch
-  namespace :ha
+namespace :elasticsearch do
+  namespace :ha do
 
     desc "import records in parallel"
     task :import do
