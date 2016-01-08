@@ -34,7 +34,7 @@ Promote your staged index:
 
 ## Acknowledgements
 
-Thanks to [Pop Up Archive](http://popuparchive.com/) for 
+Thanks to [Pop Up Archive](http://popuparchive.com/) for
 contributing the original version of this code to the public domain.
 
 ## Public domain

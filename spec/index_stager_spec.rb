@@ -41,7 +41,7 @@ describe Elasticsearch::Rails::HA::IndexStager do
       batch_size: 5,
       force: true,
       verbose: !ENV['QUIET']
-    )   
+    )
     indexer.run
     stager.alias_stage_to_tmp_index
     stager

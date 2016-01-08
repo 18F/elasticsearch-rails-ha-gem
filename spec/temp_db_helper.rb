@@ -65,7 +65,7 @@ class Article < ActiveRecord::Base
       indexes :title,      type: 'string', analyzer: 'snowball'
       indexes :body,       type: 'string'
       indexes :created_at, type: 'date'
-    end 
-  end 
+    end
+  end
 end
 
