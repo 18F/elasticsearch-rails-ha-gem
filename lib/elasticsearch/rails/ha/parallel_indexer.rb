@@ -33,16 +33,17 @@ module Elasticsearch
           end
 
           if @force
-            @verbose and puts "Force creating new index"
+            @verbose and puts ANSI.blue{ "Force creating new index" }
             klass.__elasticsearch__.create_index! force: true, index: idx_name
-            klass.__elasticsearch__.refresh_index!
+            klass.__elasticsearch__.refresh_index! index: idx_name
           end
 
           @current_db_config = ActiveRecord::Base.connection_config
+          # IMPORTANT before forks in offsets loop
+          ActiveRecord::Base.connection.disconnect!
 
           child_pids = []
           offsets.each do |start_at|
-            ActiveRecord::Base.connection.disconnect! # IMPORTANT before fork
             child_pid = fork do
               run_child(start_at)
             end
@@ -50,6 +51,9 @@ module Elasticsearch
               child_pids << child_pid
             end
           end
+
+          # reconnect in parent
+          ActiveRecord::Base.establish_connection(@current_db_config)
 
           # Process.waitall seems to hang during tests. Do it manually.
           child_results = []

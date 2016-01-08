@@ -1,36 +1,7 @@
 require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
 
-desc "Run unit tests"
-task :default => 'test:all'
-task :test    => 'test:all'
+RSpec::Core::RakeTask.new
 
-# ----- Test tasks ------------------------------------------------------------
-
-require 'rake/testtask'
-namespace :test do
-  task :ci_reporter do
-    ENV['CI_REPORTS'] ||= 'tmp/reports'
-    require 'ci/reporter/rake/minitest'
-    Rake::Task['ci:setup:minitest'].invoke
-  end
-
-  Rake::TestTask.new(:unit) do |test|
-    Rake::Task['test:ci_reporter'].invoke if ENV['CI']
-    test.libs << 'lib' << 'test'
-    test.test_files = FileList["test/unit/*_test.rb"]
-    # test.verbose = true
-    # test.warning = true
-  end
-
-  Rake::TestTask.new(:integration) do |test|
-    Rake::Task['test:ci_reporter'].invoke if ENV['CI']
-    test.libs << 'lib' << 'test'
-    test.test_files = FileList["test/integration/*_test.rb"]
-  end
-
-  Rake::TestTask.new(:all) do |test|
-    Rake::Task['test:ci_reporter'].invoke if ENV['CI']
-    test.libs << 'lib' << 'test'
-    test.test_files = FileList["test/unit/*_test.rb", "test/integration/*_test.rb"]
-  end
-end
+task default: :spec
+task test: :spec

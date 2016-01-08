@@ -44,7 +44,6 @@ namespace :elasticsearch
       )   
       indexer.run
       stager.alias_stage_to_tmp_index
-      stager.clean_up_old_indices
       puts "[#{Time.now.utc.iso8601}] #{klass} index staged as #{stager.stage_index_name}"
     end
 

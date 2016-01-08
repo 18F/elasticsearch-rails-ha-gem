@@ -17,7 +17,7 @@ module Elasticsearch
         end
 
         def tmp_index_name
-          @_suffix ||= Time.now.strftime('%Y%m%d%H%M%S') + '-' + SecureRandom.hex[0..8]
+          @_suffix ||= Time.now.strftime('%Y%m%d%H%M%S') + '-' + SecureRandom.hex[0..7]
           "#{klass.index_name}_#{@_suffix}"
         end
 
@@ -28,21 +28,6 @@ module Elasticsearch
               { add: { index: tmp_index_name, alias: stage_index_name } }
             ]
           }
-        end
-
-        def clean_up_old_indices(age_window=1.weeks.ago)
-          old_aliases = es_client.indices.get_aliases(index: stage_index_name).keys
-          old_aliases.each do |alias_name|
-            next unless alias_name.match(tmp_index_pattern)
-            begin
-              if Time.parse(alias_name.match(tmp_index_pattern)[1]) < age_window
-                es_client.indices.delete index: alias_name
-                puts "Cleaned up old alias #{alias_name}"
-              end
-            rescue => err
-              puts "Failed to clean up alias #{alias_name}: #{err}"
-            end
-          end
         end
 
         def promote(live_index_name=klass.index_name)
