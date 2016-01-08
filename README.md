@@ -1,5 +1,7 @@
 # elasticsearch-rails-ha RubyGem
 
+[![Build Status](https://travis-ci.org/18F/elasticsearch-rails-ha-gem.svg?branch=master)](https://travis-ci.org/18F/elasticsearch-rails-ha-gem)
+
 Elasticsearch for Rails, high availability extensions.
 
 See also:
