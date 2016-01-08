@@ -6,7 +6,7 @@ namespace :elasticsearch
   namespace :ha
 
     desc "import records in parallel"
-    task :parallel do
+    task :import do
       nprocs     = ENV['NPROCS'] || 1
       batch_size = ENV['BATCH']  || 100
       max        = ENV['MAX']    || nil
