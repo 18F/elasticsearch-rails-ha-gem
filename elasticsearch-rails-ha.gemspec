@@ -30,7 +30,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec"
 
   s.add_development_dependency "elasticsearch-extensions"
-  s.add_development_dependency "elasticsearch-model"
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "rails",  ">= 3.1"
 end
