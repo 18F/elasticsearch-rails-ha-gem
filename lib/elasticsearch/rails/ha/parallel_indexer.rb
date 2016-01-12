@@ -1,3 +1,5 @@
+require 'ansi'
+
 module Elasticsearch
   module Rails
     module HA
