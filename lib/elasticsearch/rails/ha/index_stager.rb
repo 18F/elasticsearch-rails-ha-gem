@@ -12,7 +12,7 @@ module Elasticsearch
           if klass.respond_to?(:stage_index_name)
             klass.stage_index_name
           else
-            klass.index_name + "_stage"
+            klass.index_name + "_staged"
           end
         end
 

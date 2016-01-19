@@ -4,12 +4,12 @@ require 'pp'
 describe Elasticsearch::Rails::HA::IndexStager do
 
   after(:each) do
-    ESHelper.client.indices.delete index: "articles_stage" rescue false
+    ESHelper.client.indices.delete index: "articles_staged" rescue false
   end
 
   it "generates index names" do
     stager = Elasticsearch::Rails::HA::IndexStager.new('Article')
-    expect(stager.stage_index_name).to eq "articles_stage"
+    expect(stager.stage_index_name).to eq "articles_staged"
     expect(stager.tmp_index_name).to match(/^articles_\d{14}-\w{8}$/)
   end
 
