@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'elasticsearch-model'
   s.add_runtime_dependency 'elasticsearch-rails'
   s.add_runtime_dependency 'ansi'
+  s.add_runtime_dependency 'pp'
 
   s.required_ruby_version = ">= 1.9.3"
   s.add_development_dependency 'about_yml'

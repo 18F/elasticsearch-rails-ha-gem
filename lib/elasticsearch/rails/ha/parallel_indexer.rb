@@ -1,4 +1,5 @@
 require 'ansi'
+require 'pp'
 
 module Elasticsearch
   module Rails
@@ -136,7 +137,7 @@ module Elasticsearch
               STDOUT.flush
               if errors.size > 0
                 STDOUT.puts "ERRORS in #{$$}:"
-                STDOUT.puts pp(errors)
+                STDOUT.puts errors.pretty_inspect
               end
               if completed >= @pool_size || (@max && @max.to_i == completed)
                 pbar.finish if pbar
