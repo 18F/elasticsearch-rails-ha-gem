@@ -113,6 +113,9 @@ module Elasticsearch
           pbar = ::ANSI::Progressbar.new("#{klass} [#{$$}]", @pool_size, STDOUT) rescue nil
           checkpoint = false
           if pbar
+            win_width = pbar.__send__ :get_width
+            title_width = (win_width / 4).to_i
+            pbar.format("%-#{title_width}s %3d%% %s %s", :title, :percentage, :bar, :stat)
             pbar.__send__ :show
             pbar.bar_mark = '='
           else
