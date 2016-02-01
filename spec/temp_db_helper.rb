@@ -56,7 +56,7 @@ end
 TempDBHelper.setup
 
 # extend class with ES definitions -- must do this after setup
-ActiveRecord::Base.raise_in_transactional_callbacks = true
+#ActiveRecord::Base.raise_in_transactional_callbacks = true
 class Article < ActiveRecord::Base
   include Elasticsearch::Model
   include Elasticsearch::Model::Callbacks
