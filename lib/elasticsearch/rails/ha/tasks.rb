@@ -54,7 +54,7 @@ namespace :elasticsearch do
       klass = ENV['CLASS'] or fail "CLASS required"
       stager = Elasticsearch::Rails::HA::IndexStager.new(klass)
       stager.promote(ENV['INDEX'])
-      puts "[#{Time.now.utc.iso8601}] #{klass} promoted #{stage_index_name} to #{stager.live_index_name}"
+      puts "[#{Time.now.utc.iso8601}] #{klass} promoted #{stager.stage_index_name} to #{stager.live_index_name}"
     end
 
   end
