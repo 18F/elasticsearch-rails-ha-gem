@@ -32,6 +32,25 @@ describe Elasticsearch::Rails::HA::IndexStager do
     expect(aliases.keys[0]).to eq stager.tmp_index_name
   end
 
+  it "handles first-time migration to staged paradigm" do
+    live_indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
+      klass: 'Article',
+      idx_name: Article.index_name,
+      nprocs: 1,
+      batch_size: 5,
+      force: true,
+      verbose: !ENV['QUIET']
+    )
+    live_indexer.run
+
+    stager = stage_index
+    stager.promote
+    Article.__elasticsearch__.refresh_index!
+
+    aliases = ESHelper.client.indices.get_aliases(index: Article.index_name)
+    expect(aliases.keys[0]).to eq stager.tmp_index_name
+  end
+
   def stage_index
     stager = Elasticsearch::Rails::HA::IndexStager.new('Article')
     indexer = Elasticsearch::Rails::HA::ParallelIndexer.new(
