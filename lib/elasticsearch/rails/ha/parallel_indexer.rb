@@ -19,6 +19,11 @@ module Elasticsearch
           @verbose    = opts[:verbose]
           @scope      = opts[:scope]
 
+          # make sure klass is not a simple string
+          if @klass.is_a?(String)
+            @klass = @klass.constantize
+          end
+
           # calculate array of offsets based on nprocs
           @total_expected = klass.count
           @pool_size = (@total_expected / @nprocs.to_f).ceil
