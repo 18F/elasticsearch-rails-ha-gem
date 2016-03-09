@@ -30,6 +30,8 @@ module Elasticsearch
         end
 
         def run
+          return if @pool_size < 1
+
           # get all ids since we can't assume there are no holes in the PK sequencing
           ids = klass.order('id ASC').pluck(:id)
           offsets = []
