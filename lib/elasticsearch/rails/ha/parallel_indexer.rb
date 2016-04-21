@@ -49,9 +49,9 @@ module Elasticsearch
             klass.__elasticsearch__.refresh_index! index: idx_name
           end
 
-          @current_db_config = ActiveRecord::Base.connection_config
+          @current_db_config = ::ActiveRecord::Base.connection_config
           # IMPORTANT before forks in offsets loop
-          ActiveRecord::Base.connection.disconnect!
+          ::ActiveRecord::Base.connection.disconnect!
 
           child_pids = []
           offsets.each do |start_at|
@@ -64,7 +64,7 @@ module Elasticsearch
           end
 
           # reconnect in parent
-          ActiveRecord::Base.establish_connection(@current_db_config)
+          ::ActiveRecord::Base.establish_connection(@current_db_config)
 
           # Process.waitall seems to hang during tests. Do it manually.
           child_results = []
@@ -109,7 +109,7 @@ module Elasticsearch
 
         def run_child(start_at)
           # IMPORTANT after fork
-          ActiveRecord::Base.establish_connection(@current_db_config)
+          ::ActiveRecord::Base.establish_connection(@current_db_config)
 
           # IMPORTANT for tests to determine whether at_end should run
           ENV["I_AM_HA_CHILD"] = "true"
