@@ -1,3 +1,4 @@
+require 'active_record/base'
 require 'ansi'
 require 'pp'
 
